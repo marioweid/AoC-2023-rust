@@ -1,30 +1,40 @@
-use std::fs::{File, read_to_string};
+use std::fs::File;
 use std::io;
 use std::io::BufRead;
-use std::path::Path;
 
-#[allow(dead_code)]
-fn read_lines_in_memory(filename: &str) -> Vec<String>{
-    let mut result :Vec<String> = Vec::new();
-    for line in read_to_string(filename).unwrap().lines(){
-        result.push(line.to_string())
+fn string_sum(s: &str) -> i32 {
+    let first_numeric = s.chars().find(|c| c.is_numeric());
+    let last_numeric = s.chars().rev().find(|c| c.is_numeric());
+
+    // is a number
+    match (first_numeric, last_numeric) {
+        (Some(first), Some(last)) => {
+            let first_num = first.to_digit(10).unwrap_or(0) as i32;
+            let last_num = last.to_digit(10).unwrap_or(0) as i32;
+            format!("{}{}", first_num, last_num).parse().unwrap_or(0)
+        }
+        _ => 0,
     }
-    result
 }
 
-// Better version that reads with buffer not creates a string in buffer
-fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
-where P: AsRef<Path>, {
-    let file = File::open(filename)?;
-    Ok(io::BufReader::new(file).lines())
+fn read_file_lines(file_path: &str) -> Result<Vec<String>, io::Error> {
+    let file = File::open(file_path)?;
+    let reader = io::BufReader::new(file);
+
+    let lines: Result<Vec<String>, io::Error> = reader.lines().collect();
+    lines
 }
 
 fn main() {
-    if let Ok(lines) = read_lines("./src/example.txt"){
-        for line in lines {
-            if let Ok(ip) = line {
-                println!("{}", ip)
-            }
+    match read_file_lines("./src/input.txt") {
+        Ok(lines) => {
+            let total_sum: i32 = lines
+                .iter()
+                .map(|line| string_sum(line.as_str()))
+                .sum();
+
+            println!("Total Sum: {}", total_sum);
         }
+        Err(e) => eprintln!("Error reading file: {}", e),
     }
 }
