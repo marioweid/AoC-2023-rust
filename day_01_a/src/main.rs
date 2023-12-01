@@ -9,9 +9,7 @@ fn string_sum(s: &str) -> i32 {
     // is a number
     match (first_numeric, last_numeric) {
         (Some(first), Some(last)) => {
-            let first_num = first.to_digit(10).unwrap_or(0) as i32;
-            let last_num = last.to_digit(10).unwrap_or(0) as i32;
-            format!("{}{}", first_num, last_num).parse().unwrap_or(0)
+            format!("{}{}", first, last).parse().unwrap_or(0)
         }
         _ => 0,
     }
@@ -26,7 +24,7 @@ fn read_file_lines(file_path: &str) -> Result<Vec<String>, io::Error> {
 }
 
 fn main() {
-    match read_file_lines("./src/input.txt") {
+    match read_file_lines("./src/example.txt") {
         Ok(lines) => {
             let total_sum: i32 = lines
                 .iter()
