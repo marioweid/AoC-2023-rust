@@ -1,5 +1,5 @@
 [package]
-name = "AoC-2023-rs"
+name = "day_01_a"
 version = "0.1.0"
 edition = "2021"
 
