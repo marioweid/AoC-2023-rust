@@ -38,12 +38,18 @@ fn main() {
     // Check if there is a match for a given condition
     let game_name = "Game 1";
     let color_to_check = "blue";
-    let count_to_check = 5u32;
+    let count_to_check = 12u32;
 
     if let Some(color_counts) = games_data.get(game_name) {
         let actual_colors_counts = color_counts.get(color_to_check);
         match actual_colors_counts {
-            Some(colors) => {}
+            Some(colors) => { if colors.iter().all(|f| f <= &count_to_check){
+                println!("Possible: {}", color_to_check);
+            }
+            else{
+                println!("Impossible: {}", color_to_check);
+            }
+        }
             None => {println!("Invalid: colors empty {}.", game_name);}
         }
 
