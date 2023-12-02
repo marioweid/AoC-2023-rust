@@ -3,8 +3,8 @@ use std::io;
 use std::io::BufRead;
 
 fn read_file_lines(file_path: &str) -> Result<Vec<String>, io::Error> {
-    let file = File::open(file_path)?;
-    let reader = io::BufReader::new(file);
+    let file: File = File::open(file_path)?;
+    let reader: io::BufReader<File> = io::BufReader::new(file);
 
     let lines: Result<Vec<String>, io::Error> = reader.lines().collect();
     lines
@@ -67,7 +67,7 @@ fn get_line_square_sum(line: String) -> i32{
 }
 
 fn main() {
-    match read_file_lines("./src/input.txt"){
+    match read_file_lines("./src/example.txt"){
         Ok(lines) => {
             let mut line_sums : Vec<i32> = Vec::new();
             for line in lines {
