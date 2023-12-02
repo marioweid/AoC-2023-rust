@@ -40,7 +40,7 @@ fn get_line_square_sum(line: String) -> i32{
     let mut first_match: Option<&str> = None;
     let mut last_match: Option<&str> = None;
 
-    for (i, c) in line.chars().enumerate() {
+    for (i, _c) in line.chars().enumerate() {
         let sub_string: String = line.chars().take(i + 1).collect();
         let rev_string: String = line.chars().skip(line.len() - i - 1).collect();
         println!("{}", sub_string);
