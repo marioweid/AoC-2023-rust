@@ -14,10 +14,10 @@ where P: AsRef<Path>, {
     Ok(io::BufReader::new(file).lines())
 }
 
-fn read_file_as_game_data() -> GamesData{
+fn read_file_as_game_data(filepath: &str) -> GamesData{
     // File hosts.txt must exist in the current path
     let mut ret: HashMap<String, HashMap<String, Vec<u32>>> = GamesData::new();
-    if let Ok(lines) = read_lines("../input.txt") {
+    if let Ok(lines) = read_lines(filepath) {
         // Consumes the iterator, returns an (Optional) String
         for line_result in lines {
             if let Ok(line) = line_result {
@@ -66,7 +66,7 @@ fn get_row_power(row: HashMap<String, Vec<u32>>) -> u32{
 }
 
 fn main() {
-    let game_data_map: HashMap<String, HashMap<String, Vec<u32>>> = read_file_as_game_data();
+    let game_data_map: HashMap<String, HashMap<String, Vec<u32>>> = read_file_as_game_data("../input.txt");
 
     // check every entry in the game map and safe the valid entries
     let mut row_powers: Vec<u32> = Vec::new();
