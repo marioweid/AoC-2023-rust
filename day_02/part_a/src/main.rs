@@ -19,7 +19,7 @@ fn read_file_as_game_data() -> GamesData{
     
     // File hosts.txt must exist in the current path
     let mut ret: HashMap<String, HashMap<String, Vec<u32>>> = GamesData::new();
-    if let Ok(lines) = read_lines("./src/input.txt") {
+    if let Ok(lines) = read_lines("../input.txt") {
         // Consumes the iterator, returns an (Optional) String
         for line_result in lines {
             if let Ok(line) = line_result {

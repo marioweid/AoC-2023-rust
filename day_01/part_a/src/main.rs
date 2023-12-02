@@ -24,7 +24,7 @@ fn read_file_lines(file_path: &str) -> Result<Vec<String>, io::Error> {
 }
 
 fn main() {
-    match read_file_lines("./src/example.txt") {
+    match read_file_lines("../example.txt") {
         Ok(lines) => {
             let total_sum: i32 = lines
                 .iter()

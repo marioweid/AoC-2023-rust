@@ -67,7 +67,7 @@ fn get_line_square_sum(line: String) -> i32{
 }
 
 fn main() {
-    match read_file_lines("./src/example.txt"){
+    match read_file_lines("../example.txt"){
         Ok(lines) => {
             let mut line_sums : Vec<i32> = Vec::new();
             for line in lines {
