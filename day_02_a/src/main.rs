@@ -42,16 +42,20 @@ fn main() {
 
     if let Some(color_counts) = games_data.get(game_name) {
         let actual_colors_counts = color_counts.get(color_to_check);
-        match actual_colors_counts {
+        
+        let col_match = match actual_colors_counts {
             Some(colors) => { if colors.iter().all(|f| f <= &count_to_check){
                 println!("Possible: {}", color_to_check);
+                true
             }
             else{
                 println!("Impossible: {}", color_to_check);
+                false
             }
         }
-            None => {println!("Invalid: colors empty {}.", game_name);}
-        }
+            None => {println!("Invalid: colors empty {}.", game_name); false}
+        };
+        println!("col_match: {}", col_match)
 
         // if Some(actual_colors_counts) {
         //     if actual_colors_counts.iter().all(|val| val < &count_to_check) {
