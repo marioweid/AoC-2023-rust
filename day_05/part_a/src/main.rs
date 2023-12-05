@@ -15,22 +15,13 @@ impl SourceDestinationEntry {
     }
 
     fn to_hashmap(&self) -> HashMap<i32,i32>{
-        let ret: HashMap<i32, i32> = self.source.clone().into_iter().zip(self.destination.clone().into_iter()).collect();
+        let ret: HashMap<i32, i32> = self.source.iter().cloned().zip(self.destination.clone().into_iter()).collect();
         return ret;
     }
 }
 
 fn combine_entries(entries: Vec<SourceDestinationEntry>) -> HashMap<i32,i32> {
-    return match entries.len() {
-        0 => { HashMap::new() }
-        _ => {
-            let mut ret: HashMap<i32, i32> = HashMap::new();
-            for map in entries {
-                ret.extend(map.to_hashmap());
-            }
-            ret
-        }
-    }
+    return entries.into_iter().flat_map(|entry| entry.to_hashmap()).collect();
 }
 
 struct Map {
@@ -54,22 +45,16 @@ impl Map {
         self.next_map = Some(Box::new(next_map));
     }
 
+    pub fn source_to_destination(&self, source_value: i32) -> i32 {
+        let dest = self.mapping.get(&source_value).unwrap_or(&source_value);
 
-    pub fn source_to_destination(&self, source_value: i32) -> i32{
-        let destination = self.mapping.get(&source_value);
-        return match destination {
-            Some(dest) => {
-                match &self.next_map {
-                    Some(map) => {
-                        map.source_to_destination(*dest)
-                    }
-                    None => { *dest }
-                }
+        match &self.next_map {
+            Some(map) => {
+                let recursive_result = map.source_to_destination(*dest);
+                recursive_result
             }
-            None => {
-                source_value
-            }
-        };
+            None => *dest,
+        }
     }
 }
 
