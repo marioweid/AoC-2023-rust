@@ -1,41 +1,50 @@
 use std::collections::HashMap;
-use std::hash::Hash;
+use std::fs;
 
-struct SourceDestinationEntry{
-    source: Vec<i32>,
-    destination: Vec<i32>,
+
+struct SourceDestinationEntry {
+    source: Vec<i64>,
+    destination: Vec<i64>,
 }
 
 impl SourceDestinationEntry {
-    fn new(dest_start: i32, source_start: i32, range: i32) -> SourceDestinationEntry {
+    fn new(dest_start: i64, source_start: i64, range: i64) -> SourceDestinationEntry {
         SourceDestinationEntry {
-            source : (source_start..source_start + range).collect(),
+            source: (source_start..source_start + range).collect(),
             destination: (dest_start..dest_start + range).collect(),
         }
     }
 
-    fn to_hashmap(&self) -> HashMap<i32,i32>{
-        let ret: HashMap<i32, i32> = self.source.iter().cloned().zip(self.destination.clone().into_iter()).collect();
+    fn to_hashmap(&self) -> HashMap<i64, i64> {
+        let ret: HashMap<i64, i64> = self
+            .source
+            .iter()
+            .cloned()
+            .zip(self.destination.clone().into_iter())
+            .collect();
         return ret;
     }
 }
 
-fn combine_entries(entries: Vec<SourceDestinationEntry>) -> HashMap<i32,i32> {
-    return entries.into_iter().flat_map(|entry| entry.to_hashmap()).collect();
+fn combine_entries(entries: Vec<SourceDestinationEntry>) -> HashMap<i64, i64> {
+    return entries
+        .into_iter()
+        .flat_map(|entry| entry.to_hashmap())
+        .collect();
 }
 
+#[derive(Clone)]
 struct Map {
-    key: String,
-    mapping: HashMap<i32, i32>,
+    _key: String,
+    mapping: HashMap<i64, i64>,
     next_map: Option<Box<Map>>, // Optional next map
 }
 
+
 impl Map {
-
     pub fn new(key: &str, mapping_entries: Vec<SourceDestinationEntry>) -> Map {
-
         Map {
-            key: String::from(key),
+            _key: String::from(key),
             mapping: combine_entries(mapping_entries),
             next_map: None,
         }
@@ -45,7 +54,7 @@ impl Map {
         self.next_map = Some(Box::new(next_map));
     }
 
-    pub fn source_to_destination(&self, source_value: i32) -> i32 {
+    pub fn source_to_destination(&self, source_value: i64) -> i64 {
         let dest = self.mapping.get(&source_value).unwrap_or(&source_value);
 
         match &self.next_map {
@@ -58,61 +67,53 @@ impl Map {
     }
 }
 
+fn read_data(filepath: &str) -> (Vec<i64>, Map) {
+    let data = fs::read_to_string(filepath).expect("Unable to read file");
+    let mut paragraphs = data.split("\n\n");
+    let seeds: Vec<i64> = paragraphs
+        .next()
+        .unwrap()
+        .split_whitespace()
+        .skip(1)
+        .filter_map(|s| s.parse().ok())
+        .collect();
+    let mut maps:Vec<Map> = Vec::new();
 
+    for paragraph in paragraphs {
+        let mut key_value_split = paragraph.split(" map:\n");
+        let key = key_value_split.next().unwrap(); // seed-to-soil map:
+
+        let values: Vec<&str> = key_value_split.next().unwrap().split("\n").collect(); // 50 98 2  -  52 50 48
+        let value_array: Vec<Vec<i64>> = values.iter()
+        .map(|s| s.split_whitespace().map(|num| num.parse().unwrap()).collect())
+        .collect();
+        let mut source_dest_entries: Vec<SourceDestinationEntry> = Vec::new();
+        
+        for array in value_array{
+            let entry = SourceDestinationEntry::new(
+                array[0], array[1], array[2]);
+                source_dest_entries.push(entry);
+
+        }
+        let map: Map = Map::new(key, source_dest_entries);
+        maps.push(map);
+    }
+
+    for idx in (0..maps.len() - 1).rev(){
+        let next: Map = maps[idx+1].clone();
+        maps[idx].set_next_map(next)
+    }
+    return (seeds, maps[0].clone()); // return seeds and root element
+}
 
 fn main() {
-    // seed
-    let seed_entry_1 = SourceDestinationEntry::new(50,98,2);
-    let seed_entry_2 = SourceDestinationEntry::new(52,50,48);
-
-    // soil
-    let soil_entry_1 = SourceDestinationEntry::new(0,15,37);
-    let soil_entry_2 = SourceDestinationEntry::new(37,52,2);
-    let soil_entry_3 = SourceDestinationEntry::new(39,0,15);
-
-    // fertilizer
-    let fert_entry_1 = SourceDestinationEntry::new(49,53,8);
-    let fert_entry_2 = SourceDestinationEntry::new(0, 11, 42);
-    let fert_entry_3 = SourceDestinationEntry::new(42, 0 , 7);
-    let fert_entry_4 = SourceDestinationEntry::new(57, 7, 4);
-
-    // water
-    let water_entry_1 = SourceDestinationEntry::new(88, 18, 7);
-    let water_entry_2 = SourceDestinationEntry::new(18, 25, 70);
-
-    // light
-    let light_entry_1 = SourceDestinationEntry::new(45, 77, 23);
-    let light_entry_2 = SourceDestinationEntry::new(81, 45, 19);
-    let light_entry_3 = SourceDestinationEntry::new(68, 64, 13);
-
-    // temperature
-    let temperature_entry_1 = SourceDestinationEntry::new(0, 69, 1);
-    let temperature_entry_2 = SourceDestinationEntry::new(1, 0, 69);
-
-    // humidity
-    let humidity_entry_1 = SourceDestinationEntry::new(60, 56, 37);
-    let humidity_entry_2 = SourceDestinationEntry::new(56, 93, 4);
-
-    let mut seed_map = Map::new("seed", vec![seed_entry_1, seed_entry_2]);
-    let mut soil_map = Map::new("soil", vec![soil_entry_1, soil_entry_2, soil_entry_3]);
-    let mut fert_map = Map::new("fertilizer", vec![fert_entry_1, fert_entry_2, fert_entry_3, fert_entry_4]);
-    let mut water_map = Map::new("water", vec![water_entry_1, water_entry_2]);
-    let mut light_map = Map::new("light", vec![light_entry_1, light_entry_2, light_entry_3]);
-    let mut temperature_map = Map::new("temperature", vec![temperature_entry_1, temperature_entry_2]);
-    let humidity_map = Map::new("humidity", vec![humidity_entry_1, humidity_entry_2]);
-
-    // Note: ownership needs the maps to be set bottom up
-    temperature_map.set_next_map(humidity_map);
-    light_map.set_next_map(temperature_map);
-    water_map.set_next_map(light_map);
-    fert_map.set_next_map(water_map);
-    soil_map.set_next_map(fert_map);
-    seed_map.set_next_map(soil_map);
-
-    let _seed_1 = seed_map.source_to_destination(79);
-    let _seed_2 = seed_map.source_to_destination(14);
-    let _seed_3 = seed_map.source_to_destination(55);
-    let _seed_4 = seed_map.source_to_destination(13);
-
-    println!("...")
+    let (seeds,map)  = read_data("../input.txt");
+    let mut results :Vec<i64> = Vec::new();
+    for seed in seeds{
+        let res = map.source_to_destination(seed);
+        println!("result for seed {}->{}", seed, &res);
+        results.push(res);
+    }
+    let shortest = results.iter().min().unwrap();
+    println!("Shortest Seed: {}",shortest);
 }
