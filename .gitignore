@@ -1,3 +1,4 @@
 **/target/
 .idea/
 **/input.txt
+.vscode
