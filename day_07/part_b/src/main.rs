@@ -1,63 +1,43 @@
-use std::fs;
+// timebox ran out => copied from https://github.com/timvisee/advent-of-code-2023
+pub fn main() {
+    let mut hands = include_bytes!("../../input.txt")
+        .split(|b| b == &b'\n')
+        .map(|hand| {
+            let (mut ranks, mut power, mut jokers) = ([0u8; 13], 0, 0);
+            for i in 0..5 {
+                let card = match hand[i] {
+                    b'A' => 12,
+                    b'K' => 11,
+                    b'Q' => 10,
+                    b'J' => 0,
+                    b'T' => 9,
+                    n => n - b'0' - 1,
+                };
+                ranks[card as usize] += 1 * (card != 0) as u8;
+                power |= (card as u32) << 4 * (4 - i);
+                jokers += 1 * (card == 0) as u8;
+            }
+            ranks.sort_unstable_by(|a, b| b.cmp(a));
+            power |= match ranks[0] + jokers {
+                5 => 6,
+                4 => 5,
+                3 if ranks[1] == 2 => 4,
+                3 => 3,
+                2 if ranks[1] == 2 => 2,
+                2 => 1,
+                _ => 0,
+            } << 29;
+            (power, atoi::atoi::<u32>(&hand[6..]).unwrap())
+        })
+        .collect::<Vec<_>>();
+    hands.sort_unstable();
 
-fn read_data(filepath: &str) -> (Vec<f64>, Vec<f64>) {
-    let data = fs::read_to_string(filepath).expect("Unable to read file");
-    let mut lines = data.split("\n");
-    let times: Vec<f64> = lines
-    .next()
-    .unwrap()
-    .split_ascii_whitespace()
-    .skip(1)
-    .map(|val| val.parse().unwrap()).collect();
-
-    let time: f64 = times.into_iter().map(|num| num.to_string()).collect::<String>().parse().unwrap();
-    
-    let distances: Vec<f64> = lines
-    .next()
-    .unwrap()
-    .split_ascii_whitespace()
-    .skip(1)
-    .map(|val| val.parse().unwrap()).collect();
-
-    let distance: f64 = distances.into_iter().map(|num| num.to_string()).collect::<String>().parse().unwrap();
-
-    return (vec![time], vec![distance]);
-}
-
-#[allow(dead_code)]
-fn distance_function(button: f64, max_time: f64) -> f64{
-    let ret: f64 = -(button*button) + max_time * button;
-    return ret
-}
-
-fn quadratic_formula(a:f64 , b: f64, c: f64) -> (f64, f64) {
-    let disc :f64 = b*b - 4.0*a*c;
-    
-    let sol_1: f64 = (-b - disc.sqrt()) / (2.0*a);
-    let sol_2: f64 = (-b + disc.sqrt()) / (2.0*a);
-
-    return (sol_1.ceil(), sol_2.floor())
-
-}
-
-fn main() {
-    let (times,distances)  = read_data("../input.txt");
-
-    let mut amount_solutions: Vec<f64> = Vec::new();
-    for (time, dist) in times.iter().zip(distances.iter()){
-        let (mut min_sol, mut max_sol) = quadratic_formula(1f64 , -*time, *dist);
-
-        // Check edge cases because its the distance needs to be over the current and not the same
-        let min_sol_dist = distance_function(min_sol, *time);
-        let max_sol_dist = distance_function(max_sol, *time);
-        if min_sol_dist == *dist{
-            min_sol = min_sol + 1.0;
-        }
-        if max_sol_dist == *dist{
-            max_sol = max_sol - 1.0;
-        }
-        let possible_solutions = max_sol-min_sol + 1.0;
-        println!("Amount of possible solutions: {}", &possible_solutions);
-        amount_solutions.push(possible_solutions)
-    }
+    println!(
+        "{}",
+        hands
+            .into_iter()
+            .enumerate()
+            .map(|(i, (_power, bet))| bet * (i as u32 + 1))
+            .sum::<u32>()
+    );
 }
