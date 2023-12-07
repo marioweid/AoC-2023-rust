@@ -25,7 +25,26 @@ impl Hand {
     }
 
     fn determine_hand_type(&mut self) -> String {
-        return "".to_string()
+        let mut card_counts: HashMap<&String, i32> = std::collections::HashMap::new();
+
+        for card in self.cards.iter() {
+            let count: &mut i32 = card_counts.entry(card).or_insert(0);
+            *count += 1;
+        }
+        
+        let count_vals: Vec<i32> = card_counts.values().cloned().collect();
+        let mut _ret: Option<&str> = None;
+        if count_vals.contains(&5) {_ret = Some("five_oak")}
+        else if count_vals.contains(&5) { _ret = Some("four_oak") }
+        else if count_vals.contains(&4) { _ret = Some("four_oak") }
+        else if count_vals.contains(&3) & count_vals.contains(&2) { _ret = Some("full_house") }
+        else if count_vals.contains(&3) { _ret = Some("three_oak") }
+        else if count_vals.iter().filter(|&val| *val==2).count() == 2 { _ret = Some("two_pair") }
+        else if count_vals.contains(&2) { _ret = Some("one_pair") }
+        else if count_vals.iter().all(|val| *val==1) { _ret = Some("high_card") }
+        else { _ret = Some("rank") }
+        
+        return _ret.unwrap().to_string()
     }
 
     fn determine_hand_power(&mut self) -> i32 {
@@ -37,11 +56,7 @@ impl Hand {
     }
 }
 
-// 32T3K 765
-// T55J5 684
-// KK677 28
-// KTJJT 220
-// QQQJA 483
+
 fn read_data(filepath: &str) -> Vec<Hand> {
     let data = fs::read_to_string(filepath).expect("Unable to read file");
     let lines = data.split("\n");
@@ -74,11 +89,17 @@ fn read_data(filepath: &str) -> Vec<Hand> {
     return hands;
 }
 
+// 32T3K 765
+// T55J5 684
+// KK677 28
+// KTJJT 220
+// QQQJA 483
 fn main() {
     let hands:Vec<Hand>  = read_data("../example.txt");
 
     println!("Amount of Hands: {}", hands.len());
-    for hand in hands{
-        println!("power: {}", &hand.power);
+    for hand in &hands{
+        println!("power: {}", hand.power);
     }
+    println!("Breakpoint!")
 }
