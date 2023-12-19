@@ -25,24 +25,6 @@ fn find_start_position(grid: &Vec<Vec<char>>) -> Result<(usize, usize), &'static
     Err("Cant find Starting-Position inside the grid.")
 }
 
-// fn fluid_fill(grid: &mut Vec<Vec<&str>>, row: usize, col: usize, new_value: &str, old_value: &str) {
-//     // Check if the current cell is within the grid and has the old value
-//     if row < grid.len() && col < grid[0].len() && grid[row][col] == old_value {
-//         // Fill the current cell with the new value
-//         grid[row][col] = new_value;
-
-//         // Recursively fill the neighboring cells
-//         fluid_fill(grid, row + 1, col, new_value, old_value); // Down
-//         fluid_fill(grid, row, col + 1, new_value, old_value); // Right
-//         if row > 0 {
-//             fluid_fill(grid, row - 1, col, new_value, old_value); // Up
-//         }
-//         if col > 0 {
-//             fluid_fill(grid, row, col - 1, new_value, old_value); // Left
-//         }
-//     }
-// }
-
 fn fill(
     grid: &Vec<Vec<char>>,
     mut queue: VecDeque<(usize, usize)>,
@@ -86,10 +68,6 @@ fn fill(
         }
     }
     return vals_loop;
-
-    // if c < len(grid[r]) - 1 and ch in "S-LF" and grid[r][c + 1] in "-J7" and (r, c + 1) not in loop:
-    //     loop.add((r, c + 1))
-    //     q.append((r, c + 1))
 }
 
 pub fn main() {
@@ -100,9 +78,9 @@ pub fn main() {
     let mut vals_loop: HashSet<(usize, usize)> = HashSet::new();
     vals_loop.insert((start_row, start_col));
 
-    let mut queue = VecDeque::new();
+    let mut queue: VecDeque<(usize, usize)> = VecDeque::new();
     queue.push_back((start_row, start_col));
-    let result = fill(&grid, queue, vals_loop);
+    let result: HashSet<(usize, usize)> = fill(&grid, queue, vals_loop);
     
     println!("loop_vals: {}", result.len() / 2);
 }
