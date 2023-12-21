@@ -74,9 +74,9 @@ pub fn main() {
 // 3. get the points (x, y)
 // 4. Compare min(point_a) with every other max(point_b) in grid
 //   1. Calculate total if Empty row
-//      1. if row empty => add 2
+//      1. if row empty => add 1000000
 //      2. If not       => add 1
 //  2. Calculate total if Empty column
-//      1. if col empty => add 2
+//      1. if col empty => add 1000000
 //      2. If not       => add 1
 
