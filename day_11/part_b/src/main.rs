@@ -49,8 +49,8 @@ pub fn main() {
         })
         .collect();
 
-    let scale: i32 = 2;
-    let mut total:i32 = 0;
+    let scale: i64 = 1000000;
+    let mut total:i64 = 0;
 
     points.iter().enumerate().for_each(|(i,(r1, c1))|{
         points.iter().cloned().take(i).for_each(|(r2, c2)| {
